@@ -69,20 +69,17 @@ jobs:
             -n 100 \
             -t 4 \
             --no-display-prompt
-      - name: Run 3 tests
-        run: |
-          echo "Starting performance tests"
-          for i in 1 2 3
-          do
-            echo "Test $i"
-          done
 
       - name: Test 4 GB RAM limit
         run: |
+          # Make a folder for results
+          mkdir -p results
+
           # Run TinyLlama 3 times with 4 GB RAM
           for i in 1 2 3
           do
             echo "4 GB RAM - Test $i"
+
             docker run --rm \
               --memory=4g \
               --cpus=4 \
@@ -99,7 +96,10 @@ jobs:
                   -n 100 \
                   -t 4 \
                   --no-display-prompt
-              '
+              ' 2>&1 | tee "results/4gb_test_$i.txt"
+
+            # Stop if the test fails
+            test "${PIPESTATUS[0]}" -eq 0 || exit 1
           done
 
       - name: Test 2 GB RAM limit
@@ -108,6 +108,7 @@ jobs:
           for i in 1 2 3
           do
             echo "2 GB RAM - Test $i"
+
             docker run --rm \
               --memory=2g \
               --cpus=4 \
@@ -124,6 +125,55 @@ jobs:
                   -n 100 \
                   -t 4 \
                   --no-display-prompt
-              '
+              ' 2>&1 | tee "results/2gb_test_$i.txt"
+
+            # Stop if the test fails
+            test "${PIPESTATUS[0]}" -eq 0 || exit 1
           done
-      
+
+      - name: Make results CSV
+        if: always()
+        run: |
+          # Put the test speeds into one CSV file
+          python3 - <<'PY'
+          import csv
+          import glob
+          import re
+
+          with open("results.csv", "w", newline="") as f:
+              w = csv.writer(f)
+              w.writerow(["RAM_GB", "Test", "Prompt_tps", "Generation_tps", "Status"])
+
+              for ram in [4, 2]:
+                  for i in range(1, 4):
+                      file = f"results/{ram}gb_test_{i}.txt"
+
+                      try:
+                          with open(file, errors="replace") as x:
+                              s = x.read()
+
+                          m = re.search(
+                              r"Prompt:\s*([\d.]+)\s*t/s\s*\|\s*Generation:\s*([\d.]+)\s*t/s",
+                              s
+                          )
+
+                          if m and "Exiting..." in s:
+                              w.writerow([ram, i, m.group(1), m.group(2), "Passed"])
+                          else:
+                              w.writerow([ram, i, "", "", "Failed"])
+
+                      except FileNotFoundError:
+                          w.writerow([ram, i, "", "", "Failed"])
+          PY
+
+          cat results.csv
+
+      - name: Save test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ram-test-results
+          path: |
+            results/
+            results.csv
+          if-no-files-found: warn

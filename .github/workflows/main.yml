@@ -56,3 +56,26 @@ jobs:
             -n 50 \
             -t 4 \
             --no-display-prompt
+
+      - name: Test with memory pressure
+        run: |
+          # Check memory before the test
+          free -h
+
+          # Use 8 GB of RAM
+          python3 - <<'PY'
+          import mmap
+          import time
+
+          x = mmap.mmap(-1, 8 * 1024**3)
+          for i in range(0, len(x), 4096):
+              x[i] = 1
+
+          print("Using 8 GB of RAM")
+          time.sleep(30)
+          PY
+
+          # Check memory after the test
+          free -h
+
+            

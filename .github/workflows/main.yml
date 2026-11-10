@@ -78,6 +78,7 @@ jobs:
             --cpus=4 \
             -v "$PWD:/work" \
             -w /work \
+            -e LD_LIBRARY_PATH=/work/llama.cpp/build/bin \
             ubuntu:24.04 \
             ./llama.cpp/build/bin/llama-cli \
               -m models/tinyllama.gguf \
@@ -94,6 +95,7 @@ jobs:
             --cpus=4 \
             -v "$PWD:/work" \
             -w /work \
+            -e LD_LIBRARY_PATH=/work/llama.cpp/build/bin \
             ubuntu:24.04 \
             ./llama.cpp/build/bin/llama-cli \
               -m models/tinyllama.gguf \

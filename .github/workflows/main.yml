@@ -92,6 +92,7 @@ jobs:
               bash -c '
                 apt-get update -qq &&
                 apt-get install -y -qq libgomp1 &&
+                export LD_LIBRARY_PATH=/work/llama.cpp/build/bin:$LD_LIBRARY_PATH &&
                 ./llama.cpp/build/bin/llama-cli \
                   -m models/tinyllama.gguf \
                   -p "Explain artificial intelligence in simple words." \
@@ -116,6 +117,7 @@ jobs:
               bash -c '
                 apt-get update -qq &&
                 apt-get install -y -qq libgomp1 &&
+                export LD_LIBRARY_PATH=/work/llama.cpp/build/bin:$LD_LIBRARY_PATH &&
                 ./llama.cpp/build/bin/llama-cli \
                   -m models/tinyllama.gguf \
                   -p "Explain artificial intelligence in simple words." \

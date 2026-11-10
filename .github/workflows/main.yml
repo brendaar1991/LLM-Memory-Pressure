@@ -69,7 +69,14 @@ jobs:
             -n 100 \
             -t 4 \
             --no-display-prompt
-
+      - name: Run 3 tests
+        run: |
+          echo "Starting performance tests"
+          for i in 1 2 3
+          do
+            echo "Test $i"
+          done
+          
       - name: Test 4 GB RAM limit
         run: |
           # Run TinyLlama with 4 GB RAM

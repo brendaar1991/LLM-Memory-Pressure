@@ -45,3 +45,14 @@ jobs:
 
           # Check the model downloaded
           ls -lh models/
+
+
+      - name: Test TinyLlama
+        run: |
+          # Run the AI model
+          ./llama.cpp/build/bin/llama-cli \
+            -m models/tinyllama.gguf \
+            -p "What is artificial intelligence?" \
+            -n 50 \
+            -t 4 \
+            --no-display-prompt

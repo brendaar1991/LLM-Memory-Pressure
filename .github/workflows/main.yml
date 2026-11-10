@@ -80,12 +80,16 @@ jobs:
             -w /work \
             -e LD_LIBRARY_PATH=/work/llama.cpp/build/bin \
             ubuntu:24.04 \
-            ./llama.cpp/build/bin/llama-cli \
-              -m models/tinyllama.gguf \
-              -p "Explain artificial intelligence in simple words." \
-              -n 100 \
-              -t 4 \
-              --no-display-prompt
+            bash -c '
+              apt-get update -qq
+              apt-get install -y -qq libgomp1
+              ./llama.cpp/build/bin/llama-cli \
+                -m models/tinyllama.gguf \
+                -p "Explain artificial intelligence in simple words." \
+                -n 100 \
+                -t 4 \
+                --no-display-prompt
+            '
 
       - name: Test 2 GB RAM limit
         run: |
@@ -97,9 +101,13 @@ jobs:
             -w /work \
             -e LD_LIBRARY_PATH=/work/llama.cpp/build/bin \
             ubuntu:24.04 \
-            ./llama.cpp/build/bin/llama-cli \
-              -m models/tinyllama.gguf \
-              -p "Explain artificial intelligence in simple words." \
-              -n 100 \
-              -t 4 \
-              --no-display-prompt
+            bash -c '
+              apt-get update -qq
+              apt-get install -y -qq libgomp1
+              ./llama.cpp/build/bin/llama-cli \
+                -m models/tinyllama.gguf \
+                -p "Explain artificial intelligence in simple words." \
+                -n 100 \
+                -t 4 \
+                --no-display-prompt
+            '

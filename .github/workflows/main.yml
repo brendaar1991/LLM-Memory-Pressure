@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Check RAM and CPU
         run: |
           echo "Checking RAM..."

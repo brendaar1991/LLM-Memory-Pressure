@@ -17,3 +17,19 @@ jobs:
           nproc
           echo "Checking Docker..."
           docker --version
+
+      - name: Set up llama.cpp
+        run: |
+          # Get llama.cpp from GitHub
+          git clone --depth 1 https://github.com/ggml-org/llama.cpp.git
+
+          # Install what we need
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential
+
+          # Build llama.cpp
+          cmake -S llama.cpp -B llama.cpp/build
+          cmake --build llama.cpp/build --config Release -j 4
+
+          # Check that it worked
+          ls llama.cpp/build/bin

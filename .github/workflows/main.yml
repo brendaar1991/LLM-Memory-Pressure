@@ -161,7 +161,7 @@ jobs:
 
               docker run --rm \
                 --memory="$ram" \
-                --memory-swap="$ram" \
+                --memory-swap=1g \
                 --cpus=4 \
                 -v "$PWD:/work" \
                 -w /work \

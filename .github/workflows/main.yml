@@ -176,4 +176,5 @@ jobs:
           path: |
             results/
             results.csv
+            graphs/
           if-no-files-found: warn

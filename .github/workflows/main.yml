@@ -168,6 +168,13 @@ jobs:
 
           cat results.csv
 
+      - name: Install graph libraries
+        run: pip install pandas matplotlib
+
+      - name: Create graphs
+        run: python3 graphs.py
+
+
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,0 +1,19 @@
+
+name: Test RAM
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check RAM and CPU
+        run: |
+          echo "Checking available RAM..."
+          free -h
+          echo "Checking CPU..."
+          nproc
+          echo "Checking Docker..."
+          docker --version

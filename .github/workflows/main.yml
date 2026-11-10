@@ -6,17 +6,15 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check RAM and CPU
         run: |
-          echo "Checking available RAM..."
+          echo "Checking RAM..."
           free -h
           echo "Checking CPU..."
           nproc
-          echo "Checking Docker..."
-          docker --version
 
       - name: Cache llama.cpp
         id: llama-cache
@@ -28,7 +26,7 @@ jobs:
       - name: Set up llama.cpp
         if: steps.llama-cache.outputs.cache-hit != 'true'
         run: |
-          # Get llama.cpp from GitHub
+          # Get llama.cpp
           git clone --depth 1 https://github.com/ggml-org/llama.cpp.git
 
           # Install what we need
@@ -39,7 +37,7 @@ jobs:
           cmake -S llama.cpp -B llama.cpp/build
           cmake --build llama.cpp/build --config Release -j 4
 
-          # Check that it worked
+          # Check the build
           ls llama.cpp/build/bin
 
       - name: Cache AI model
@@ -52,43 +50,54 @@ jobs:
       - name: Download AI model
         if: steps.model-cache.outputs.cache-hit != 'true'
         run: |
-          # Make a folder for the model
+          # Make a folder
           mkdir -p models
 
-          # Download a small LLM
+          # Download TinyLlama
           curl -fL --retry 3 -o models/tinyllama.gguf \
             https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
 
-          # Check the model downloaded
+          # Check the model
           ls -lh models/
 
-      - name: Test TinyLlama
+      - name: Test normal RAM
         run: |
-          # Run the AI model
+          # Run TinyLlama normally
           ./llama.cpp/build/bin/llama-cli \
             -m models/tinyllama.gguf \
-            -p "What is artificial intelligence?" \
-            -n 50 \
+            -p "Explain artificial intelligence in simple words." \
+            -n 100 \
             -t 4 \
             --no-display-prompt
 
-      - name: Test with memory pressure
+      - name: Test 4 GB RAM limit
         run: |
-          # Check memory before the test
-          free -h
+          # Run TinyLlama with 4 GB RAM
+          docker run --rm \
+            --memory=4g \
+            --cpus=4 \
+            -v "$PWD:/work" \
+            -w /work \
+            ubuntu:24.04 \
+            ./llama.cpp/build/bin/llama-cli \
+              -m models/tinyllama.gguf \
+              -p "Explain artificial intelligence in simple words." \
+              -n 100 \
+              -t 4 \
+              --no-display-prompt
 
-          # Use 8 GB of RAM
-          python3 - <<'PY'
-          import mmap
-          import time
-
-          x = mmap.mmap(-1, 8 * 1024**3)
-          for i in range(0, len(x), 4096):
-              x[i] = 1
-
-          print("Using 8 GB of RAM")
-          time.sleep(30)
-          PY
-
-          # Check memory after the test
-          free -h
+      - name: Test 2 GB RAM limit
+        run: |
+          # Run TinyLlama with 2 GB RAM
+          docker run --rm \
+            --memory=2g \
+            --cpus=4 \
+            -v "$PWD:/work" \
+            -w /work \
+            ubuntu:24.04 \
+            ./llama.cpp/build/bin/llama-cli \
+              -m models/tinyllama.gguf \
+              -p "Explain artificial intelligence in simple words." \
+              -n 100 \
+              -t 4 \
+              --no-display-prompt

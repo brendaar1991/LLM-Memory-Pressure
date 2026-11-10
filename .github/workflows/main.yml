@@ -76,45 +76,52 @@ jobs:
           do
             echo "Test $i"
           done
-          
+
       - name: Test 4 GB RAM limit
         run: |
-          # Run TinyLlama with 4 GB RAM
-          docker run --rm \
-            --memory=4g \
-            --cpus=4 \
-            -v "$PWD:/work" \
-            -w /work \
-            -e LD_LIBRARY_PATH=/work/llama.cpp/build/bin \
-            ubuntu:24.04 \
-            bash -c '
-              apt-get update -qq
-              apt-get install -y -qq libgomp1
-              ./llama.cpp/build/bin/llama-cli \
-                -m models/tinyllama.gguf \
-                -p "Explain artificial intelligence in simple words." \
-                -n 100 \
-                -t 4 \
-                --no-display-prompt
-            '
+          # Run TinyLlama 3 times with 4 GB RAM
+          for i in 1 2 3
+          do
+            echo "4 GB RAM - Test $i"
+            docker run --rm \
+              --memory=4g \
+              --cpus=4 \
+              -v "$PWD:/work" \
+              -w /work \
+              ubuntu:24.04 \
+              bash -c '
+                apt-get update -qq &&
+                apt-get install -y -qq libgomp1 &&
+                ./llama.cpp/build/bin/llama-cli \
+                  -m models/tinyllama.gguf \
+                  -p "Explain artificial intelligence in simple words." \
+                  -n 100 \
+                  -t 4 \
+                  --no-display-prompt
+              '
+          done
 
       - name: Test 2 GB RAM limit
         run: |
-          # Run TinyLlama with 2 GB RAM
-          docker run --rm \
-            --memory=2g \
-            --cpus=4 \
-            -v "$PWD:/work" \
-            -w /work \
-            -e LD_LIBRARY_PATH=/work/llama.cpp/build/bin \
-            ubuntu:24.04 \
-            bash -c '
-              apt-get update -qq
-              apt-get install -y -qq libgomp1
-              ./llama.cpp/build/bin/llama-cli \
-                -m models/tinyllama.gguf \
-                -p "Explain artificial intelligence in simple words." \
-                -n 100 \
-                -t 4 \
-                --no-display-prompt
-            '
+          # Run TinyLlama 3 times with 2 GB RAM
+          for i in 1 2 3
+          do
+            echo "2 GB RAM - Test $i"
+            docker run --rm \
+              --memory=2g \
+              --cpus=4 \
+              -v "$PWD:/work" \
+              -w /work \
+              ubuntu:24.04 \
+              bash -c '
+                apt-get update -qq &&
+                apt-get install -y -qq libgomp1 &&
+                ./llama.cpp/build/bin/llama-cli \
+                  -m models/tinyllama.gguf \
+                  -p "Explain artificial intelligence in simple words." \
+                  -n 100 \
+                  -t 4 \
+                  --no-display-prompt
+              '
+          done
+      

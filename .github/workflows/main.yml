@@ -19,6 +19,22 @@ jobs:
           echo "Checking CPU..."
           nproc
 
+      - name: Check Docker swap support
+        run: |
+          echo "Checking Docker..."
+          docker info
+
+          echo "Checking system swap..."
+          cat /proc/swaps
+
+          echo "Checking Docker memory and swap limits..."
+          docker run --rm --memory=512m --memory-swap=1g ubuntu:24.04 sh -c '
+            echo "RAM limit:"
+            cat /sys/fs/cgroup/memory.max
+            echo "Swap limit:"
+            cat /sys/fs/cgroup/memory.swap.max
+          '
+
       - name: Cache llama.cpp
         id: llama-cache
         uses: actions/cache@v4
@@ -132,6 +148,45 @@ jobs:
 
             # Stop if the test fails
             test "${PIPESTATUS[0]}" -eq 0 || exit 1
+          done
+
+
+      - name: Test lower RAM and measure memory
+        run: |
+          mkdir -p results
+
+          for ram in 1g 512m; do
+            for i in 1 2 3; do
+              echo "Testing $ram - Run $i"
+
+              docker run --rm \
+                --memory="$ram" \
+                --memory-swap="$ram" \
+                --cpus=4 \
+                -v "$PWD:/work" \
+                -w /work \
+                ubuntu:24.04 \
+                bash -c '
+                  apt-get update -qq
+                  apt-get install -y -qq libgomp1 time > /dev/null
+                  export LD_LIBRARY_PATH=/work/llama.cpp/build/bin:$LD_LIBRARY_PATH
+
+                  echo "RAM limit:"
+                  cat /sys/fs/cgroup/memory.max
+                  echo "Swap limit:"
+                  cat /sys/fs/cgroup/memory.swap.max
+
+                  /usr/bin/time -v \
+                    ./llama.cpp/build/bin/llama-cli \
+                    -m models/tinyllama.gguf \
+                    -p "Explain artificial intelligence in simple words." \
+                    -n 100 -t 4 --no-display-prompt
+                ' > "results/${ram}_test_${i}.txt" 2>&1
+
+              code=$?
+              echo "$ram, Test $i, Exit code: $code"
+              echo "Exit code: $code" >> "results/${ram}_test_${i}.txt"
+            done
           done
 
       - name: Make results CSV

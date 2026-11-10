@@ -18,7 +18,15 @@ jobs:
           echo "Checking Docker..."
           docker --version
 
+      - name: Cache llama.cpp
+        id: llama-cache
+        uses: actions/cache@v4
+        with:
+          path: llama.cpp
+          key: llama-build-v1
+
       - name: Set up llama.cpp
+        if: steps.llama-cache.outputs.cache-hit != 'true'
         run: |
           # Get llama.cpp from GitHub
           git clone --depth 1 https://github.com/ggml-org/llama.cpp.git
@@ -34,7 +42,15 @@ jobs:
           # Check that it worked
           ls llama.cpp/build/bin
 
+      - name: Cache AI model
+        id: model-cache
+        uses: actions/cache@v4
+        with:
+          path: models/tinyllama.gguf
+          key: tinyllama-model-v1
+
       - name: Download AI model
+        if: steps.model-cache.outputs.cache-hit != 'true'
         run: |
           # Make a folder for the model
           mkdir -p models
@@ -45,7 +61,6 @@ jobs:
 
           # Check the model downloaded
           ls -lh models/
-
 
       - name: Test TinyLlama
         run: |
@@ -77,5 +92,3 @@ jobs:
 
           # Check memory after the test
           free -h
-
-            

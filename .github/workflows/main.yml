@@ -159,7 +159,7 @@ jobs:
             for i in 1 2 3; do
               echo "Testing $ram - Run $i"
 
-              docker run --rm \
+              timeout --signal=TERM --kill-after=10s 300s docker run --rm \
                 --memory="$ram" \
                 --memory-swap=1g \
                 --cpus=4 \

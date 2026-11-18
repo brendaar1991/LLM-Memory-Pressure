@@ -65,3 +65,26 @@ This shows how limited memory can affect local AI model performance.
 - **Brenda:** Environment setup, AI model, Docker, and memory testing.
 - **Cameron:** Python development and interactive demo.
 - **Begeline:** Testing, analysis, and final report.
+
+## Test Results and Analysis
+
+We tested the TinyLlama AI model using four different RAM limits: 4 GB, 2 GB, 1 GB, and 512 MB. Each test was repeated three times.
+
+| RAM Limit | Average Generation Speed | Status |
+|-----------|--------------------------|--------|
+| 4 GB | 33.2 tokens/sec | Passed |
+| 2 GB | 34.0 tokens/sec | Passed |
+| 1 GB | 34.1 tokens/sec | Passed |
+| 512 MB | 3.3 tokens/sec | Passed |
+
+### What We Found
+
+The model ran at almost the same speed with 4 GB, 2 GB, and 1 GB of RAM.
+
+When we lowered RAM to 512 MB, the model became about 90% slower. It also started using swap memory because there was not enough RAM available.
+
+All 12 tests finished successfully, but the results show that having too little RAM can make an AI model run much slower.
+
+### Conclusion
+
+Our results show that memory limits can affect how fast a local AI model runs. The biggest performance drop happened at 512 MB, where the system had to use swap memory.

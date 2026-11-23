@@ -87,7 +87,7 @@ jobs:
             -p "Explain artificial intelligence in simple words." \
             -n 100 \
             -t 4 \
-            --no-display-prompt
+            --no-display-prompt -st < /dev/null
 
       - name: Test 4 GB RAM limit
         run: |
@@ -114,7 +114,7 @@ jobs:
                   -p "Explain artificial intelligence in simple words." \
                   -n 100 \
                   -t 4 \
-                  --no-display-prompt
+                  --no-display-prompt -st < /dev/null
               ' 2>&1 | tee "results/4gb_test_$i.txt"
 
             # Stop if the test fails
@@ -143,7 +143,7 @@ jobs:
                   -p "Explain artificial intelligence in simple words." \
                   -n 100 \
                   -t 4 \
-                  --no-display-prompt
+                  --no-display-prompt -st < /dev/null
               ' 2>&1 | tee "results/2gb_test_$i.txt"
 
             # Stop if the test fails
@@ -195,7 +195,7 @@ jobs:
                       ./llama.cpp/build/bin/llama-cli \
                       -m models/tinyllama.gguf \
                       -p "Explain artificial intelligence in simple words." \
-                      -n 100 -t 4 --no-display-prompt
+                      -n 100 -t 4 --no-display-prompt -st < /dev/null
 
                     echo "RAM peak:"
                     cat /sys/fs/cgroup/memory.peak
